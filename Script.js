@@ -258,9 +258,9 @@ function validateField(field) {
     }
   } else if (field.name === 'shipment-value' && value) {
     const numValue = parseFloat(value.replace(/[^\d.]/g, ''));
-    if (isNaN(numValue) || numValue < 14350) {
+    if (isNaN(numValue) || numValue < 10) {
       isValid = false;
-      showFieldError(field, 'Minimum shipment value is $14,350 USDT');
+      showFieldError(field, 'Minimum shipment value is $10 USDT');
     }
   }
 
