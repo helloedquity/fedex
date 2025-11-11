@@ -395,7 +395,7 @@ function renderShipmentsList(filteredShipments = null) {
                 </div>
                 <div class="shipment-detail">
                     <div class="label">Value</div>
-                    <div class="value">$${shipment.shipmentValue.toLocaleString()} USDT</div>
+                    <div class="value">NET WT.${shipment.shipmentValue.toLocaleString()} Kg</div>
                 </div>
                 <div class="shipment-detail">
                     <div class="label">Current Location</div>
