@@ -1,427 +1,428 @@
 /* Tracking Page Styles */
 .tracking-section {
-    padding: 8rem 0 4rem;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 8rem 0 4rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
 .tracking-header {
-    text-align: center;
-    margin-bottom: 3rem;
+  text-align: center;
+  margin-bottom: 3rem;
 }
 
 .tracking-header h1 {
-    font-size: 3rem;
-    color: #1e293b;
-    margin-bottom: 1rem;
+  font-size: 3rem;
+  color: #1e293b;
+  margin-bottom: 1rem;
 }
 
 .tracking-header p {
-    font-size: 1.25rem;
-    color: #64748b;
-    max-width: 600px;
-    margin: 0 auto;
+  font-size: 1.25rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 /* Tracking Input */
 .tracking-input-container {
-    max-width: 600px;
-    margin: 0 auto 3rem;
+  max-width: 600px;
+  margin: 0 auto 3rem;
 }
 
 .tracking-form {
-    display: flex;
-    gap: 1rem;
-    background: white;
-    padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .tracking-form input {
-    flex: 1;
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 0.5rem;
-    font-size: 1.125rem;
-    transition: border-color 0.3s ease;
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  transition: border-color 0.3s ease;
 }
 
 .tracking-form input:focus {
-    outline: none;
-    border-color: #2563eb;
+  outline: none;
+  border-color: #2563eb;
 }
 
 .tracking-form button {
-    padding: 1rem 2rem;
-    white-space: nowrap;
+  padding: 1rem 2rem;
+  white-space: nowrap;
 }
 
 /* Tracking Results */
 .tracking-results {
-    max-width: 1000px;
-    margin: 0 auto;
-    display: grid;
-    gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
 }
 
 /* Shipment Info Card */
 .shipment-info-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .shipment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .shipment-header h2 {
-    color: #1e293b;
-    margin: 0;
+  color: #1e293b;
+  margin: 0;
 }
 
 .status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .status-badge.processing {
-    background-color: #fef3c7;
-    color: #92400e;
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status-badge.in-transit {
-    background-color: #dbeafe;
-    color: #1e40af;
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .status-badge.customs {
-    background-color: #fde68a;
-    color: #b45309;
+  background-color: #fde68a;
+  color: #b45309;
 }
 
 .status-badge.out-for-delivery {
-    background-color: #d1fae5;
-    color: #065f46;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .status-badge.delivered {
-    background-color: #dcfce7;
-    color: #166534;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .shipment-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
 .detail-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .detail-item .label {
-    font-weight: 500;
-    color: #64748b;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .detail-item .value {
-    font-weight: 600;
-    color: #1e293b;
+  font-weight: 600;
+  color: #1e293b;
 }
 
 /* Timeline */
 .timeline-container {
-    background: white;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .timeline-container h3 {
-    color: #1e293b;
-    margin-bottom: 2rem;
+  color: #1e293b;
+  margin-bottom: 2rem;
 }
 
 .timeline {
-    position: relative;
-    padding-left: 2rem;
+  position: relative;
+  padding-left: 2rem;
 }
 
 .timeline::before {
-    content: '';
-    position: absolute;
-    left: 1rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e2e8f0;
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
 }
 
 .timeline-item {
-    position: relative;
-    margin-bottom: 2rem;
-    padding-left: 2rem;
+  position: relative;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
 }
 
 .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -0.5rem;
-    top: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    background: #e2e8f0;
-    border: 3px solid white;
-    box-shadow: 0 0 0 3px #e2e8f0;
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 3px solid white;
+  box-shadow: 0 0 0 3px #e2e8f0;
 }
 
 .timeline-item.completed::before {
-    background: #10b981;
-    box-shadow: 0 0 0 3px #10b981;
+  background: #10b981;
+  box-shadow: 0 0 0 3px #10b981;
 }
 
 .timeline-item.current::before {
-    background: #2563eb;
-    box-shadow: 0 0 0 3px #2563eb;
-    animation: pulse 2s infinite;
+  background: #2563eb;
+  box-shadow: 0 0 0 3px #2563eb;
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 .timeline-content h4 {
-    color: #1e293b;
-    margin-bottom: 0.5rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
 }
 
 .timeline-content p {
-    color: #64748b;
-    margin-bottom: 0.25rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
 }
 
 .timeline-time {
-    font-size: 0.875rem;
-    color: #94a3b8;
+  font-size: 0.875rem;
+  color: #94a3b8;
 }
 
 /* Location Container */
 .location-container {
-    background: white;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .location-container h3 {
-    color: #1e293b;
-    margin-bottom: 2rem;
+  color: #1e293b;
+  margin-bottom: 2rem;
 }
 
 .location-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
 }
 
 .current-location {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .location-icon {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
 .current-location h4 {
-    color: #1e293b;
-    margin: 0 0 0.25rem 0;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
 }
 
 .current-location p {
-    color: #64748b;
-    margin: 0;
+  color: #64748b;
+  margin: 0;
 }
 
 .location-time {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #64748b;
-    font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
 }
 
 .time-icon {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 .location-map {
-    background: #f8fafc;
-    border-radius: 0.5rem;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #cbd5e1;
 }
 
 .map-placeholder {
-    text-align: center;
-    color: #64748b;
+  text-align: center;
+  color: #64748b;
 }
 
 .map-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 0.5rem;
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 /* Additional Info */
 .additional-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
 .info-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-    text-align: center;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .info-card h4 {
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
 }
 
 .info-card p {
-    color: #64748b;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .btn-small {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
 }
 
 /* Error Message */
 .error-message {
-    max-width: 600px;
-    margin: 2rem auto;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 0.5rem;
-    padding: 1rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
 
 .error-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .error-icon {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 
 .error-content h4 {
-    color: #dc2626;
-    margin: 0 0 0.25rem 0;
+  color: #dc2626;
+  margin: 0 0 0.25rem 0;
 }
 
 .error-content p {
-    color: #7f1d1d;
-    margin: 0;
+  color: #7f1d1d;
+  margin: 0;
 }
 
 /* Active nav link */
 .nav-link.active {
-    color: #2563eb;
-    font-weight: 600;
+  color: #2563eb;
+  font-weight: 600;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .tracking-header h1 {
-        font-size: 2.5rem;
-    }
-    
-    .tracking-form {
-        flex-direction: column;
-    }
-    
-    .shipment-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .shipment-details {
-        grid-template-columns: 1fr;
-    }
-    
-    .location-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .additional-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .timeline {
-        padding-left: 1.5rem;
-    }
-    
-    .timeline-item {
-        padding-left: 1.5rem;
-    }
+  .tracking-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .tracking-form {
+    flex-direction: column;
+  }
+
+  .shipment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .shipment-details {
+    grid-template-columns: 1fr;
+  }
+
+  .location-info {
+    grid-template-columns: 1fr;
+  }
+
+  .additional-info {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
-    .tracking-section {
-        padding: 6rem 0 2rem;
-    }
-    
-    .tracking-header h1 {
-        font-size: 2rem;
-    }
-    
-    .tracking-header p {
-        font-size: 1rem;
-    }
-    
-    .shipment-info-card,
-    .timeline-container,
-    .location-container {
-        padding: 1.5rem;
-    }
+  .tracking-section {
+    padding: 6rem 0 2rem;
+  }
+
+  .tracking-header h1 {
+    font-size: 2rem;
+  }
+
+  .tracking-header p {
+    font-size: 1rem;
+  }
+
+  .shipment-info-card,
+  .timeline-container,
+  .location-container {
+    padding: 1.5rem;
+  }
 }

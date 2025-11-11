@@ -282,7 +282,7 @@ function displayTrackingResults(shipment) {
   document.getElementById('estimatedDelivery').textContent = formatDate(shipment.estimatedDelivery);
   document.getElementById(
     'shipmentValue'
-  ).textContent = `$${shipment.shipmentValue.toLocaleString()} USDT`;
+  ).textContent = `${shipment.shipmentValue.toLocaleString()} Kg`;
 
   // Update status badge
   const statusBadge = document.getElementById('statusBadge');

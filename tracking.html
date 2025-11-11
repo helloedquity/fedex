@@ -1,186 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Track Your Shipment - FedEx Ship Center</title>
-    <link rel="stylesheet" href="Styles.css">
-    <link rel="stylesheet" href="tracking.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="Styles.css" />
+    <link rel="stylesheet" href="tracking.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2><a href="index.html" style="text-decoration: none; color: inherit;">FedEx Ship Center</a></h2>
-            </div>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="index.html#services" class="nav-link">Services</a></li>
-                <li><a href="index.html#pricing" class="nav-link">Pricing</a></li>
-                <li><a href="tracking.html" class="nav-link active">Track Shipment</a></li>
-                <li><a href="admin.html" class="nav-link">Admin</a></li>
-                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="nav-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+      <div class="nav-container">
+        <div class="nav-logo">
+          <h2>
+            <a href="index.html" style="text-decoration: none; color: inherit">FedEx Ship Center</a>
+          </h2>
         </div>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="index.html#services" class="nav-link">Services</a></li>
+          <li><a href="index.html#pricing" class="nav-link">Pricing</a></li>
+          <li><a href="tracking.html" class="nav-link active">Track Shipment</a></li>
+          <li><a href="admin.html" class="nav-link">Admin</a></li>
+          <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-toggle" id="mobile-menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
     </nav>
 
     <!-- Tracking Section -->
     <section class="tracking-section">
-        <div class="container">
-            <div class="tracking-header">
-                <h1>Track Your Shipment</h1>
-                <p>Enter your tracking ID to get real-time updates on your shipment status</p>
-            </div>
-
-            <!-- Tracking Input -->
-            <div class="tracking-input-container">
-                <div class="tracking-form">
-                    <input type="text" id="trackingId" placeholder="Enter your tracking ID (e.g., SCS-2025-001)" maxlength="20">
-                    <button id="trackBtn" class="btn btn-primary">Track Shipment</button>
-                </div>
-            </div>
-
-            <!-- Tracking Results -->
-            <div id="trackingResults" class="tracking-results" style="display: none;">
-                <!-- Shipment Info Card -->
-                <div class="shipment-info-card">
-                    <div class="shipment-header">
-                        <h2 id="shipmentTitle">Shipment Details</h2>
-                        <div class="status-badge" id="statusBadge">In Transit</div>
-                    </div>
-                    <div class="shipment-details">
-                        <div class="detail-item">
-                            <span class="label">Tracking ID:</span>
-                            <span class="value" id="displayTrackingId">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Service Type:</span>
-                            <span class="value" id="serviceType">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Origin:</span>
-                            <span class="value" id="origin">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Destination:</span>
-                            <span class="value" id="destination">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Estimated Delivery:</span>
-                            <span class="value" id="estimatedDelivery">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Shipment Value:</span>
-                            <span class="value" id="shipmentValue">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Progress Timeline -->
-                <div class="timeline-container">
-                    <h3>Shipment Progress</h3>
-                    <div class="timeline" id="timeline">
-                        <!-- Timeline items will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Current Location Map -->
-                <div class="location-container">
-                    <h3>Current Location</h3>
-                    <div class="location-info">
-                        <div class="location-details">
-                            <div class="current-location">
-                                <span class="location-icon">📍</span>
-                                <div>
-                                    <h4 id="currentLocation">Loading...</h4>
-                                    <p id="locationDescription">Fetching current location...</p>
-                                </div>
-                            </div>
-                            <div class="location-time">
-                                <span class="time-icon">🕒</span>
-                                <span id="lastUpdate">Last updated: Loading...</span>
-                            </div>
-                        </div>
-                        <div class="location-map">
-                            <div class="map-placeholder">
-                                <span class="map-icon">🗺️</span>
-                                <p>Interactive map view</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Additional Information -->
-                <div class="additional-info">
-                    <div class="info-card">
-                        <h4>📋 Customs Status</h4>
-                        <p id="customsStatus">Cleared through customs</p>
-                    </div>
-                    <div class="info-card">
-                        <h4>📞 Contact Support</h4>
-                        <p>Need help? Call us at <strong> +(931)677-2299</strong></p>
-                    </div>
-                    <div class="info-card">
-                        <h4>📧 Email Updates</h4>
-                        <p>Get notifications sent to your email</p>
-                        <button class="btn btn-outline btn-small" id="emailNotifications">Enable Notifications</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Error Message -->
-            <div id="errorMessage" class="error-message" style="display: none;">
-                <div class="error-content">
-                    <span class="error-icon">❌</span>
-                    <div>
-                        <h4>Tracking ID Not Found</h4>
-                        <p>Please check your tracking ID and try again. If you continue to have issues, contact our support team.</p>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="tracking-header">
+          <h1>Track Your Shipment</h1>
+          <p>Enter your tracking ID to get real-time updates on your shipment status</p>
         </div>
+
+        <!-- Tracking Input -->
+        <div class="tracking-input-container">
+          <div class="tracking-form">
+            <input
+              type="text"
+              id="trackingId"
+              placeholder="Enter your tracking ID (e.g., SCS-2025-001)"
+              maxlength="20"
+            />
+            <button id="trackBtn" class="btn btn-primary">Track Shipment</button>
+          </div>
+        </div>
+
+        <!-- Tracking Results -->
+        <div id="trackingResults" class="tracking-results" style="display: none">
+          <!-- Shipment Info Card -->
+          <div class="shipment-info-card">
+            <div class="shipment-header">
+              <h2 id="shipmentTitle">Shipment Details</h2>
+              <div class="status-badge" id="statusBadge">In Transit</div>
+            </div>
+            <div class="shipment-details">
+              <div class="detail-item">
+                <span class="label">Tracking ID:</span>
+                <span class="value" id="displayTrackingId">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Service Type:</span>
+                <span class="value" id="serviceType">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Origin:</span>
+                <span class="value" id="origin">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Destination:</span>
+                <span class="value" id="destination">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Estimated Delivery:</span>
+                <span class="value" id="estimatedDelivery">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Shipment Value:</span>
+                <span class="value" id="shipmentValue">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Timeline -->
+          <div class="timeline-container">
+            <h3>Shipment Progress</h3>
+            <div class="timeline" id="timeline">
+              <!-- Timeline items will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Current Location Map -->
+          <div class="location-container">
+            <h3>Current Location</h3>
+            <div class="location-info">
+              <div class="location-details">
+                <div class="current-location">
+                  <span class="location-icon">📍</span>
+                  <div>
+                    <h4 id="currentLocation">Loading...</h4>
+                    <p id="locationDescription">Fetching current location...</p>
+                  </div>
+                </div>
+                <div class="location-time">
+                  <span class="time-icon">🕒</span>
+                  <span id="lastUpdate">Last updated: Loading...</span>
+                </div>
+              </div>
+              <div class="location-map">
+                <div class="map-placeholder">
+                  <span class="map-icon">🗺️</span>
+                  <p>Interactive map view</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Information -->
+          <div class="additional-info">
+            <div class="info-card">
+              <h4>📋 Customs Status</h4>
+              <p id="customsStatus">Cleared through customs</p>
+            </div>
+            <div class="info-card">
+              <h4>💬 Contact Support</h4>
+              <p>Need help? Call us at <strong>+1 (213) 569-9033</strong></p>
+            </div>
+            <div class="info-card">
+              <h4>📧 Email Updates</h4>
+              <p>Get notifications sent to your email</p>
+              <button class="btn btn-outline btn-small" id="emailNotifications">
+                Enable Notifications
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none">
+          <div class="error-content">
+            <span class="error-icon">❌</span>
+            <div>
+              <h4>Tracking ID Not Found</h4>
+              <p>
+                Please check your tracking ID and try again. If you continue to have issues, contact
+                our support team.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>FedEx Ship Center</h3>
-                    <p>Professional US customs clearance and shipping services for high-value cargo.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="tracking.html">Track Shipment</a></li>
-                        <li><a href="admin.html">Admin Panel</a></li>
-                        <li><a href="index.html#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <p>📞 +(931)677-2299</p>
-                    <p>📧 official.FedEx.company8@gmail.com</p>
-                    <p>📍 Miami, FL 33101</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2020 FedEx Ship Center. All rights reserved.</p>
-            </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>FedEx Ship Center</h3>
+            <p>Professional US customs clearance and shipping services for high-value cargo.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="tracking.html">Track Shipment</a></li>
+              <li><a href="admin.html">Admin Panel</a></li>
+              <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact Info</h4>
+            <p>💬 +1 (213) 569-9033</p>
+            <p>📧 official.FedEx.company8@gmail.com</p>
+            <p>📍 Miami, FL 33101</p>
+          </div>
         </div>
+        <div class="footer-bottom">
+          <p>&copy; 2020 FedEx Ship Center. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script src="Script.js"></script>
     <script src="tracking.js"></script>
-</body>
+  </body>
 </html>
