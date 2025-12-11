@@ -274,7 +274,9 @@ async function initMap() {
 // Prefer backend coordinates, fallback to geocoding an address/location string
 async function updateMapFromShipment(shipment) {
   if (!shipment) return;
-  if (!mapInstance) initMap();
+  if (!mapInstance) {
+    await initMap(); // ensure map and geocoder are ready before proceeding
+  }
   if (!mapInstance) return;
 
   const coords = getCoordsFromShipment(shipment);
