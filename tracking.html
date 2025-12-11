@@ -124,9 +124,27 @@
                 </div>
               </div>
               <div class="location-map">
-                <div class="map-placeholder">
-                  <span class="map-icon">🗺️</span>
-                  <p>Interactive map view</p>
+                <div
+                  id="locationMap"
+                  class="map-container"
+                  style="height: 260px; position: relative"
+                >
+                  <div
+                    class="map-placeholder"
+                    style="
+                      position: absolute;
+                      inset: 0;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 8px;
+                      pointer-events: none;
+                    "
+                  >
+                    <span class="map-icon">🗺️</span>
+                    <p>Interactive map view</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -200,6 +218,11 @@
     </footer>
 
     <script src="Script.js"></script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5scqZxqoi4XBMlhd8L4eP6ZhXfaguIyc"
+    ></script>
     <script src="tracking.js"></script>
   </body>
 </html>

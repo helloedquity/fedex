@@ -207,6 +207,16 @@ const trackingIdInput = document.getElementById('trackingId');
 const trackBtn = document.getElementById('trackBtn');
 const trackingResults = document.getElementById('trackingResults');
 const errorMessage = document.getElementById('errorMessage');
+let mapInstance = null;
+let mapMarker = null;
+let mapInfoWindow = null;
+let mapPlaceholder = null;
+let geocoder = null;
+let AdvancedMarkerElement = null;
+let mapId = null;
+
+// Make initMap available for Google Maps callback
+window.initMap = initMap;
 
 // Track button event listener
 trackBtn.addEventListener('click', handleTracking);
@@ -215,6 +225,144 @@ trackingIdInput.addEventListener('keypress', (e) => {
     handleTracking();
   }
 });
+
+// Initialize Google Map (uses AdvancedMarkerElement)
+async function initMap() {
+  if (!window.google || !window.google.maps) return;
+  if (mapInstance) return mapInstance;
+
+  const mapElement = document.getElementById('locationMap');
+  if (!mapElement) return;
+
+  mapPlaceholder = mapElement.querySelector('.map-placeholder');
+  geocoder = new google.maps.Geocoder();
+  mapId = mapElement.dataset.mapId || window.GOOGLE_MAP_ID || null;
+
+  // Load libraries
+  const { Map, InfoWindow } = await google.maps.importLibrary('maps');
+  const markerLib = await google.maps.importLibrary('marker');
+  AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
+
+  mapInstance = new Map(mapElement, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+    ...(mapId ? { mapId } : {}),
+  });
+
+  // Use AdvancedMarker when a mapId is provided, otherwise fall back to standard Marker to avoid warnings
+  if (mapId && AdvancedMarkerElement) {
+    mapMarker = new AdvancedMarkerElement({
+      map: mapInstance,
+      position: { lat: 20, lng: 0 },
+      title: 'Current location',
+    });
+  } else {
+    mapMarker = new google.maps.Marker({
+      map: mapInstance,
+      position: { lat: 20, lng: 0 },
+      title: 'Current location',
+    });
+  }
+
+  mapInfoWindow = new InfoWindow();
+  return mapInstance;
+}
+
+// Prefer backend coordinates, fallback to geocoding an address/location string
+async function updateMapFromShipment(shipment) {
+  if (!shipment) return;
+  if (!mapInstance) initMap();
+  if (!mapInstance) return;
+
+  const coords = getCoordsFromShipment(shipment);
+  const label = getLocationLabel(shipment);
+  const locationString = shipment.currentLocation || shipment.mapAddress || label;
+
+  if (coords) {
+    setMapPosition(coords, label || locationString || 'Current location');
+    return;
+  }
+
+  // Fallback: geocode the location string using Google Maps
+  if (!locationString || !geocoder) return;
+
+  try {
+    const results = await geocodeAddress(locationString);
+    if (results && results[0]) {
+      const loc = results[0].geometry.location;
+      const popupText = label || results[0].formatted_address || locationString;
+      setMapPosition([loc.lat(), loc.lng()], popupText);
+    }
+  } catch (error) {
+    console.error('Map update error:', error);
+  }
+}
+
+function geocodeAddress(address) {
+  return new Promise((resolve, reject) => {
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === 'OK') {
+        resolve(results);
+      } else {
+        reject(new Error(`Geocode failed: ${status}`));
+      }
+    });
+  });
+}
+
+// Helper: extract coordinates with multiple possible backend field names
+function getCoordsFromShipment(shipment) {
+  const lat =
+    shipment.latitude ??
+    shipment.lat ??
+    shipment.locationLat ??
+    (shipment.coordinates ? shipment.coordinates.lat : undefined);
+  const lon =
+    shipment.longitude ??
+    shipment.lng ??
+    shipment.lon ??
+    shipment.locationLng ??
+    (shipment.coordinates ? shipment.coordinates.lng : undefined);
+  if (typeof lat === 'number' && typeof lon === 'number') return [lat, lon];
+  const latNum = Number(lat);
+  const lonNum = Number(lon);
+  if (!Number.isNaN(latNum) && !Number.isNaN(lonNum)) return [latNum, lonNum];
+  return null;
+}
+
+function getLocationLabel(shipment) {
+  return shipment.mapAddress || shipment.locationDescription || shipment.currentLocation || '';
+}
+
+function setMapPosition(coords, popupText) {
+  if (!mapInstance || !mapMarker) return;
+  const position = { lat: coords[0], lng: coords[1] };
+  if (mapId && AdvancedMarkerElement && mapMarker instanceof AdvancedMarkerElement) {
+    mapMarker.position = position;
+    mapMarker.title = popupText || '';
+  } else if (mapMarker.setPosition) {
+    mapMarker.setPosition(position);
+    if (mapMarker.setTitle) {
+      mapMarker.setTitle(popupText || '');
+    }
+  }
+  mapInstance.setCenter(position);
+  mapInstance.setZoom(9);
+  if (mapInfoWindow) {
+    mapInfoWindow.setContent(popupText || 'Current location');
+    mapInfoWindow.open({
+      anchor: mapMarker,
+      map: mapInstance,
+      shouldFocus: false,
+    });
+  }
+  if (mapPlaceholder) {
+    mapPlaceholder.style.display = 'none';
+  }
+}
 
 // Handle tracking request
 async function handleTracking() {
@@ -296,6 +444,7 @@ function displayTrackingResults(shipment) {
   document.getElementById('lastUpdate').textContent = `Last updated: ${formatDateTime(
     shipment.lastUpdate
   )}`;
+  updateMapFromShipment(shipment);
   document.getElementById('customsStatus').textContent = formatCustomsStatus(
     shipment.customsStatus
   );
@@ -478,6 +627,7 @@ function formatDate(dateString) {
 
 // Email notifications handler
 document.addEventListener('DOMContentLoaded', () => {
+  initMap();
   const emailBtn = document.getElementById('emailNotifications');
   if (emailBtn) {
     emailBtn.addEventListener('click', () => {
