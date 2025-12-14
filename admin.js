@@ -1061,6 +1061,38 @@ let mapPickerMarker = null;
 let mapPickerGeocoder = null;
 let currentMapPickerField = null;
 
+// Wait for Google Maps API to be ready
+async function waitForGoogleMaps() {
+  if (window.google && window.google.maps) {
+    return true;
+  }
+
+  if (window.googleMapsLoadError) {
+    throw new Error('Failed to load Google Maps API. Please check your internet connection.');
+  }
+
+  // Wait up to 10 seconds for Google Maps to load
+  const maxWait = 10000;
+  const checkInterval = 100;
+  let waited = 0;
+
+  return new Promise((resolve, reject) => {
+    const checkGoogleMaps = setInterval(() => {
+      if (window.google && window.google.maps) {
+        clearInterval(checkGoogleMaps);
+        resolve(true);
+      } else if (window.googleMapsLoadError) {
+        clearInterval(checkGoogleMaps);
+        reject(new Error('Failed to load Google Maps API. Please check your internet connection.'));
+      } else if (waited >= maxWait) {
+        clearInterval(checkGoogleMaps);
+        reject(new Error('Google Maps API is taking too long to load. Please refresh the page.'));
+      }
+      waited += checkInterval;
+    }, checkInterval);
+  });
+}
+
 // Open map picker modal
 async function openMapPicker(field) {
   currentMapPickerField = field;
@@ -1078,66 +1110,151 @@ async function openMapPicker(field) {
 
   modal.style.display = 'flex';
 
-  // Initialize map if not already done
-  if (!mapPickerInstance && window.google && window.google.maps) {
-    await initMapPicker();
-  } else if (mapPickerInstance) {
-    // Reset map to default view
-    mapPickerInstance.setCenter({ lat: 20, lng: 0 });
-    mapPickerInstance.setZoom(2);
+  // Show loading indicator
+  const loadingIndicator = document.getElementById('mapPickerLoading');
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'flex';
+  }
+
+  try {
+    // Wait for Google Maps API to be ready
+    await waitForGoogleMaps();
+
+    // Initialize map if not already done
+    if (!mapPickerInstance) {
+      await initMapPicker();
+    } else {
+      // Reset map to default view
+      mapPickerInstance.setCenter({ lat: 20, lng: 0 });
+      mapPickerInstance.setZoom(2);
+    }
+
+    // Hide loading indicator
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error initializing map picker:', error);
+    showNotification(error.message || 'Failed to load map. Please refresh the page.', 'error');
+
+    // Hide loading indicator
+    const loadingIndicator = document.getElementById('mapPickerLoading');
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'none';
+    }
+
+    // Show error message in modal
+    const mapElement = document.getElementById('mapPicker');
+    if (mapElement) {
+      const errorDiv = document.createElement('div');
+      errorDiv.style.cssText = `
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.95);
+      `;
+      errorDiv.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+        <h3 style="color: #ef4444; margin-bottom: 0.5rem;">Map Loading Error</h3>
+        <p style="color: #64748b; margin-bottom: 1rem;">${
+          error.message ||
+          'Failed to load Google Maps. Please check your internet connection and refresh the page.'
+        }</p>
+        <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">Refresh Page</button>
+      `;
+      mapElement.appendChild(errorDiv);
+    }
   }
 }
 
 // Initialize map picker
 async function initMapPicker() {
   if (!window.google || !window.google.maps) {
-    console.error('Google Maps API not loaded');
-    return;
+    throw new Error('Google Maps API not loaded');
   }
 
   const mapElement = document.getElementById('mapPicker');
-  if (!mapElement) return;
+  if (!mapElement) {
+    throw new Error('Map element not found');
+  }
 
-  mapPickerGeocoder = new google.maps.Geocoder();
+  try {
+    mapPickerGeocoder = new google.maps.Geocoder();
 
-  const { Map } = await google.maps.importLibrary('maps');
-  const markerLib = await google.maps.importLibrary('marker');
-  const AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
-
-  mapPickerInstance = new Map(mapElement, {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
-    mapTypeControl: true,
-    streetViewControl: false,
-    fullscreenControl: true,
-  });
-
-  // Create marker
-  if (AdvancedMarkerElement) {
-    mapPickerMarker = new AdvancedMarkerElement({
-      map: mapPickerInstance,
-      position: { lat: 20, lng: 0 },
+    // Use standard Map (Advanced Markers require a Map ID which we don't have)
+    // This avoids the warning about missing Map ID
+    mapPickerInstance = new google.maps.Map(mapElement, {
+      center: { lat: 20, lng: 0 },
+      zoom: 2,
+      mapTypeControl: true,
+      streetViewControl: false,
+      fullscreenControl: true,
     });
-  } else {
+
+    // Use standard Marker (Advanced Markers require Map ID)
     mapPickerMarker = new google.maps.Marker({
       map: mapPickerInstance,
       position: { lat: 20, lng: 0 },
+      draggable: true,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#3b82f6',
+        fillOpacity: 1,
+        strokeColor: '#fff',
+        strokeWeight: 3,
+      },
     });
+
+    // Handle map clicks
+    mapPickerInstance.addListener('click', (e) => {
+      const position = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      updateMapPickerMarker(position);
+      reverseGeocode(position);
+    });
+
+    // Handle marker drag
+    if (mapPickerMarker.addListener) {
+      mapPickerMarker.addListener('dragend', () => {
+        const position =
+          mapPickerMarker.position ||
+          (mapPickerMarker.getPosition ? mapPickerMarker.getPosition() : null);
+        if (position) {
+          const pos = position.lat ? position : { lat: position.lat(), lng: position.lng() };
+          updateMapPickerMarker(pos);
+          reverseGeocode(pos);
+        }
+      });
+    }
+
+    // Handle confirm button (only add listener once)
+    const confirmBtn = document.getElementById('confirmMapPicker');
+    const cancelBtn = document.getElementById('cancelMapPicker');
+    const closeBtn = document.getElementById('closeMapPicker');
+
+    // Use event delegation or check if already added
+    if (confirmBtn && !confirmBtn.hasAttribute('data-listener')) {
+      confirmBtn.addEventListener('click', confirmMapPicker);
+      confirmBtn.setAttribute('data-listener', 'true');
+    }
+    if (cancelBtn && !cancelBtn.hasAttribute('data-listener')) {
+      cancelBtn.addEventListener('click', closeMapPicker);
+      cancelBtn.setAttribute('data-listener', 'true');
+    }
+    if (closeBtn && !closeBtn.hasAttribute('data-listener')) {
+      closeBtn.addEventListener('click', closeMapPicker);
+      closeBtn.setAttribute('data-listener', 'true');
+    }
+  } catch (error) {
+    console.error('Error initializing map:', error);
+    throw error;
   }
-
-  // Handle map clicks
-  mapPickerInstance.addListener('click', (e) => {
-    const position = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-    updateMapPickerMarker(position);
-    reverseGeocode(position);
-  });
-
-  // Handle confirm button
-  document.getElementById('confirmMapPicker').addEventListener('click', confirmMapPicker);
-
-  // Handle cancel button
-  document.getElementById('cancelMapPicker').addEventListener('click', closeMapPicker);
-  document.getElementById('closeMapPicker').addEventListener('click', closeMapPicker);
 }
 
 // Update map picker marker position
@@ -1233,7 +1350,15 @@ async function autoGeocodeAddress(addressFieldId, latFieldId, lngFieldId) {
   if (latInput.value && lngInput.value) return;
 
   const address = addressInput.value.trim();
-  if (!address || !window.google || !window.google.maps) return;
+  if (!address) return;
+
+  // Wait for Google Maps API if not loaded
+  try {
+    await waitForGoogleMaps();
+  } catch (error) {
+    console.warn('Google Maps API not available for auto-geocoding:', error);
+    return;
+  }
 
   try {
     const geocoder = new google.maps.Geocoder();

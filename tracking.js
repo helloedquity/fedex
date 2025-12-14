@@ -245,21 +245,30 @@ async function initMap() {
   geocoder = new google.maps.Geocoder();
   mapId = mapElement.dataset.mapId || window.GOOGLE_MAP_ID || null;
 
-  // Load libraries
-  const { Map, InfoWindow } = await google.maps.importLibrary('maps');
-  const markerLib = await google.maps.importLibrary('marker');
-  AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
-
-  mapInstance = new Map(mapElement, {
+  // Use standard Map to avoid Map ID warning
+  // Only use Advanced Markers if we have a valid Map ID
+  mapInstance = new google.maps.Map(mapElement, {
     center: { lat: 20, lng: 0 },
     zoom: 2,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: true,
-    ...(mapId ? { mapId } : {}),
   });
 
-  mapInfoWindow = new InfoWindow();
+  // Try to load Advanced Marker library only if we have a Map ID
+  if (mapId) {
+    try {
+      const markerLib = await google.maps.importLibrary('marker');
+      AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
+    } catch (error) {
+      console.warn('Advanced Markers not available, using standard markers');
+      AdvancedMarkerElement = null;
+    }
+  } else {
+    AdvancedMarkerElement = null;
+  }
+
+  mapInfoWindow = new google.maps.InfoWindow();
   return mapInstance;
 }
 
@@ -500,10 +509,24 @@ function addMarker(type, position, title, color, icon) {
     title: title || type,
   };
 
-  // Create marker
+  // Only use Advanced Marker if we have both Map ID and AdvancedMarkerElement available
   if (mapId && AdvancedMarkerElement) {
-    markerOptions.content = createMarkerContent(icon, color);
-    mapMarkers[type] = new AdvancedMarkerElement(markerOptions);
+    try {
+      markerOptions.content = createMarkerContent(icon, color);
+      mapMarkers[type] = new AdvancedMarkerElement(markerOptions);
+    } catch (error) {
+      // Fallback to standard marker if Advanced Marker fails
+      console.warn('Advanced Marker failed, using standard marker:', error);
+      markerOptions.icon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: color,
+        fillOpacity: 1,
+        strokeColor: '#fff',
+        strokeWeight: 2,
+      };
+      mapMarkers[type] = new google.maps.Marker(markerOptions);
+    }
   } else {
     // Use standard marker with custom icon
     markerOptions.icon = {
@@ -562,10 +585,25 @@ function addHistoryMarker(position, title, timestamp, status) {
     title: title || 'History Point',
   };
 
+  // Only use Advanced Marker if we have both Map ID and AdvancedMarkerElement available
   if (mapId && AdvancedMarkerElement) {
-    markerOptions.content = createMarkerContent('📍', '#9ca3af');
-    const marker = new AdvancedMarkerElement(markerOptions);
-    mapMarkers.history.push(marker);
+    try {
+      markerOptions.content = createMarkerContent('📍', '#9ca3af');
+      const marker = new AdvancedMarkerElement(markerOptions);
+      mapMarkers.history.push(marker);
+    } catch (error) {
+      // Fallback to standard marker
+      markerOptions.icon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5,
+        fillColor: '#9ca3af',
+        fillOpacity: 0.7,
+        strokeColor: '#fff',
+        strokeWeight: 1,
+      };
+      const marker = new google.maps.Marker(markerOptions);
+      mapMarkers.history.push(marker);
+    }
   } else {
     markerOptions.icon = {
       path: google.maps.SymbolPath.CIRCLE,

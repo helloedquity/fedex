@@ -6,6 +6,16 @@
     <title>FedEx Ship Center</title>
     <link rel="stylesheet" href="../Styles.css" />
     <link rel="stylesheet" href="admin.css" />
+    <style>
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -467,8 +477,33 @@
         <div style="flex: 1; position: relative; margin-top: 1rem">
           <div
             id="mapPicker"
-            style="width: 100%; height: 100%; border-radius: 0.5rem; overflow: hidden"
-          ></div>
+            style="
+              width: 100%;
+              height: 100%;
+              border-radius: 0.5rem;
+              overflow: hidden;
+              position: relative;
+            "
+          >
+            <div
+              id="mapPickerLoading"
+              style="
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.9);
+                z-index: 10;
+              "
+            >
+              <div style="font-size: 2rem; margin-bottom: 1rem; animation: spin 1s linear infinite">
+                ⏳
+              </div>
+              <p style="color: #64748b">Loading map...</p>
+            </div>
+          </div>
         </div>
         <div style="padding: 1rem; border-top: 1px solid #e5e7eb">
           <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem">
@@ -510,10 +545,20 @@
       </div>
     </div>
 
+    <script>
+      // Wait for Google Maps API to load
+      window.initGoogleMaps = function () {
+        window.googleMapsLoaded = true;
+        if (window.onGoogleMapsReady) {
+          window.onGoogleMapsReady();
+        }
+      };
+    </script>
     <script
       async
       defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5scqZxqoi4XBMlhd8L4eP6ZhXfaguIyc&libraries=places"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5scqZxqoi4XBMlhd8L4eP6ZhXfaguIyc&libraries=places&callback=initGoogleMaps"
+      onerror="console.error('Failed to load Google Maps API'); window.googleMapsLoadError = true;"
     ></script>
     <script src="../Script.js"></script>
     <script src="admin.js"></script>
