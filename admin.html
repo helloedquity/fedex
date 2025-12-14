@@ -178,6 +178,43 @@
                       placeholder="e.g., Shanghai, China"
                       required
                     />
+                    <div
+                      class="coordinate-inputs"
+                      style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
+                    >
+                      <input
+                        type="number"
+                        id="newOriginLat"
+                        placeholder="Latitude"
+                        step="any"
+                        style="
+                          flex: 1;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 0.25rem;
+                        "
+                      />
+                      <input
+                        type="number"
+                        id="newOriginLng"
+                        placeholder="Longitude"
+                        step="any"
+                        style="
+                          flex: 1;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 0.25rem;
+                        "
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-small"
+                        onclick="openMapPicker('origin')"
+                        style="white-space: nowrap"
+                      >
+                        📍 Pick on Map
+                      </button>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>Destination</label>
@@ -187,6 +224,43 @@
                       placeholder="e.g., New York, NY"
                       required
                     />
+                    <div
+                      class="coordinate-inputs"
+                      style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
+                    >
+                      <input
+                        type="number"
+                        id="newDestinationLat"
+                        placeholder="Latitude"
+                        step="any"
+                        style="
+                          flex: 1;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 0.25rem;
+                        "
+                      />
+                      <input
+                        type="number"
+                        id="newDestinationLng"
+                        placeholder="Longitude"
+                        step="any"
+                        style="
+                          flex: 1;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 0.25rem;
+                        "
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-small"
+                        onclick="openMapPicker('destination')"
+                        style="white-space: nowrap"
+                      >
+                        📍 Pick on Map
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-row">
@@ -207,6 +281,43 @@
                     placeholder="e.g., Port of Los Angeles"
                     required
                   />
+                  <div
+                    class="coordinate-inputs"
+                    style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
+                  >
+                    <input
+                      type="number"
+                      id="newCurrentLocationLat"
+                      placeholder="Latitude"
+                      step="any"
+                      style="
+                        flex: 1;
+                        padding: 0.5rem;
+                        border: 1px solid #ddd;
+                        border-radius: 0.25rem;
+                      "
+                    />
+                    <input
+                      type="number"
+                      id="newCurrentLocationLng"
+                      placeholder="Longitude"
+                      step="any"
+                      style="
+                        flex: 1;
+                        padding: 0.5rem;
+                        border: 1px solid #ddd;
+                        border-radius: 0.25rem;
+                      "
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-small"
+                      onclick="openMapPicker('current')"
+                      style="white-space: nowrap"
+                    >
+                      📍 Pick on Map
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Create Shipment</button>
               </form>
@@ -264,6 +375,30 @@
           <div class="form-group">
             <label>Current Location</label>
             <input type="text" id="updateLocation" required />
+            <div class="coordinate-inputs" style="display: flex; gap: 0.5rem; margin-top: 0.5rem">
+              <input
+                type="number"
+                id="updateLocationLat"
+                placeholder="Latitude"
+                step="any"
+                style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 0.25rem"
+              />
+              <input
+                type="number"
+                id="updateLocationLng"
+                placeholder="Longitude"
+                step="any"
+                style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 0.25rem"
+              />
+              <button
+                type="button"
+                class="btn btn-outline btn-small"
+                onclick="openMapPicker('updateCurrent')"
+                style="white-space: nowrap"
+              >
+                📍 Pick on Map
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label>Location Description</label>
@@ -319,6 +454,67 @@
       </div>
     </div>
 
+    <!-- Map Picker Modal -->
+    <div id="mapPickerModal" class="modal" style="display: none">
+      <div
+        class="modal-content"
+        style="max-width: 90vw; width: 800px; height: 600px; display: flex; flex-direction: column"
+      >
+        <div class="modal-header">
+          <h3 id="mapPickerTitle">Select Location on Map</h3>
+          <span class="close" id="closeMapPicker">&times;</span>
+        </div>
+        <div style="flex: 1; position: relative; margin-top: 1rem">
+          <div
+            id="mapPicker"
+            style="width: 100%; height: 100%; border-radius: 0.5rem; overflow: hidden"
+          ></div>
+        </div>
+        <div style="padding: 1rem; border-top: 1px solid #e5e7eb">
+          <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem">
+            <input
+              type="text"
+              id="mapPickerAddress"
+              placeholder="Search address or click on map"
+              style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 0.25rem"
+            />
+            <button type="button" class="btn btn-primary" onclick="searchAddress()">Search</button>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem">
+            <div style="flex: 1">
+              <label style="font-size: 0.875rem; color: #64748b">Latitude</label>
+              <input
+                type="number"
+                id="mapPickerLat"
+                step="any"
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 0.25rem"
+              />
+            </div>
+            <div style="flex: 1">
+              <label style="font-size: 0.875rem; color: #64748b">Longitude</label>
+              <input
+                type="number"
+                id="mapPickerLng"
+                step="any"
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 0.25rem"
+              />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" id="cancelMapPicker">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmMapPicker">
+              Confirm Location
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5scqZxqoi4XBMlhd8L4eP6ZhXfaguIyc&libraries=places"
+    ></script>
     <script src="../Script.js"></script>
     <script src="admin.js"></script>
   </body>

@@ -208,12 +208,19 @@ const trackBtn = document.getElementById('trackBtn');
 const trackingResults = document.getElementById('trackingResults');
 const errorMessage = document.getElementById('errorMessage');
 let mapInstance = null;
-let mapMarker = null;
+let mapMarkers = {
+  origin: null,
+  destination: null,
+  current: null,
+  history: [],
+};
 let mapInfoWindow = null;
 let mapPlaceholder = null;
 let geocoder = null;
 let AdvancedMarkerElement = null;
 let mapId = null;
+let routePolyline = null;
+let historyPolyline = null;
 
 // Make initMap available for Google Maps callback
 window.initMap = initMap;
@@ -252,54 +259,211 @@ async function initMap() {
     ...(mapId ? { mapId } : {}),
   });
 
-  // Use AdvancedMarker when a mapId is provided, otherwise fall back to standard Marker to avoid warnings
-  if (mapId && AdvancedMarkerElement) {
-    mapMarker = new AdvancedMarkerElement({
-      map: mapInstance,
-      position: { lat: 20, lng: 0 },
-      title: 'Current location',
-    });
-  } else {
-    mapMarker = new google.maps.Marker({
-      map: mapInstance,
-      position: { lat: 20, lng: 0 },
-      title: 'Current location',
-    });
-  }
-
   mapInfoWindow = new InfoWindow();
   return mapInstance;
 }
 
-// Prefer backend coordinates, fallback to geocoding an address/location string
+// Update map with full shipment data including origin, destination, current location, and history
 async function updateMapFromShipment(shipment) {
   if (!shipment) return;
   if (!mapInstance) {
-    await initMap(); // ensure map and geocoder are ready before proceeding
+    await initMap();
   }
   if (!mapInstance) return;
 
-  const coords = getCoordsFromShipment(shipment);
-  const label = getLocationLabel(shipment);
-  const locationString = shipment.currentLocation || shipment.mapAddress || label;
+  // Clear existing markers and polylines
+  clearMapMarkers();
 
-  if (coords) {
-    setMapPosition(coords, label || locationString || 'Current location');
-    return;
+  const bounds = new google.maps.LatLngBounds();
+  let hasAnyCoordinates = false;
+
+  // Add origin marker
+  if (shipment.originCoordinates) {
+    const originCoords = {
+      lat: shipment.originCoordinates.latitude,
+      lng: shipment.originCoordinates.longitude,
+    };
+    addMarker('origin', originCoords, shipment.origin || 'Origin', 'green', '🟢');
+    bounds.extend(originCoords);
+    hasAnyCoordinates = true;
+  } else if (shipment.origin && geocoder) {
+    // Fallback: geocode origin
+    try {
+      const results = await geocodeAddress(shipment.origin);
+      if (results && results[0]) {
+        const loc = results[0].geometry.location;
+        addMarker('origin', { lat: loc.lat(), lng: loc.lng() }, shipment.origin, 'green', '🟢');
+        bounds.extend({ lat: loc.lat(), lng: loc.lng() });
+        hasAnyCoordinates = true;
+      }
+    } catch (error) {
+      console.error('Error geocoding origin:', error);
+    }
   }
 
-  // Fallback: geocode the location string using Google Maps
-  if (!locationString || !geocoder) return;
-
-  try {
-    const results = await geocodeAddress(locationString);
-    if (results && results[0]) {
-      const loc = results[0].geometry.location;
-      const popupText = label || results[0].formatted_address || locationString;
-      setMapPosition([loc.lat(), loc.lng()], popupText);
+  // Add destination marker
+  if (shipment.destinationCoordinates) {
+    const destCoords = {
+      lat: shipment.destinationCoordinates.latitude,
+      lng: shipment.destinationCoordinates.longitude,
+    };
+    addMarker('destination', destCoords, shipment.destination || 'Destination', 'red', '🔴');
+    bounds.extend(destCoords);
+    hasAnyCoordinates = true;
+  } else if (shipment.destination && geocoder) {
+    // Fallback: geocode destination
+    try {
+      const results = await geocodeAddress(shipment.destination);
+      if (results && results[0]) {
+        const loc = results[0].geometry.location;
+        addMarker(
+          'destination',
+          { lat: loc.lat(), lng: loc.lng() },
+          shipment.destination,
+          'red',
+          '🔴'
+        );
+        bounds.extend({ lat: loc.lat(), lng: loc.lng() });
+        hasAnyCoordinates = true;
+      }
+    } catch (error) {
+      console.error('Error geocoding destination:', error);
     }
-  } catch (error) {
-    console.error('Map update error:', error);
+  }
+
+  // Add current location marker
+  if (shipment.currentLocationCoordinates) {
+    const currentCoords = {
+      lat: shipment.currentLocationCoordinates.latitude,
+      lng: shipment.currentLocationCoordinates.longitude,
+    };
+    addMarker(
+      'current',
+      currentCoords,
+      shipment.currentLocation || 'Current Location',
+      'blue',
+      '🔵'
+    );
+    bounds.extend(currentCoords);
+    hasAnyCoordinates = true;
+  } else if (shipment.currentLocation && geocoder) {
+    // Fallback: geocode current location
+    try {
+      const results = await geocodeAddress(shipment.currentLocation);
+      if (results && results[0]) {
+        const loc = results[0].geometry.location;
+        addMarker(
+          'current',
+          { lat: loc.lat(), lng: loc.lng() },
+          shipment.currentLocation,
+          'blue',
+          '🔵'
+        );
+        bounds.extend({ lat: loc.lat(), lng: loc.lng() });
+        hasAnyCoordinates = true;
+      }
+    } catch (error) {
+      console.error('Error geocoding current location:', error);
+    }
+  }
+
+  // Draw route from origin to destination
+  if (mapMarkers.origin && mapMarkers.destination) {
+    let originPos, destPos;
+
+    // Get position from marker (handle both AdvancedMarkerElement and standard Marker)
+    if (mapMarkers.origin.position) {
+      originPos = mapMarkers.origin.position;
+    } else if (mapMarkers.origin.getPosition) {
+      originPos = mapMarkers.origin.getPosition();
+    }
+
+    if (mapMarkers.destination.position) {
+      destPos = mapMarkers.destination.position;
+    } else if (mapMarkers.destination.getPosition) {
+      destPos = mapMarkers.destination.getPosition();
+    }
+
+    if (originPos && destPos) {
+      drawRoute(originPos, destPos);
+    }
+  }
+
+  // Add location history trail
+  if (
+    shipment.locationHistory &&
+    Array.isArray(shipment.locationHistory) &&
+    shipment.locationHistory.length > 0
+  ) {
+    drawLocationHistoryTrail(shipment.locationHistory);
+    // Add history markers
+    shipment.locationHistory.forEach((entry, index) => {
+      if (entry.coordinates) {
+        const historyCoords = {
+          lat: entry.coordinates.latitude,
+          lng: entry.coordinates.longitude,
+        };
+        addHistoryMarker(
+          historyCoords,
+          entry.location || `Location ${index + 1}`,
+          entry.timestamp,
+          entry.status
+        );
+        bounds.extend(historyCoords);
+      }
+    });
+  }
+
+  // Fit bounds to show all markers
+  if (hasAnyCoordinates) {
+    try {
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      if (ne.lat() !== sw.lat() || ne.lng() !== sw.lng()) {
+        mapInstance.fitBounds(bounds, { padding: 50 });
+      } else {
+        // Single point, just center on it
+        mapInstance.setCenter(bounds.getCenter());
+        mapInstance.setZoom(9);
+      }
+    } catch (error) {
+      console.error('Error fitting bounds:', error);
+      // Fallback: center on current location or origin
+      if (mapMarkers.current) {
+        const pos =
+          mapMarkers.current.position ||
+          (mapMarkers.current.getPosition ? mapMarkers.current.getPosition() : null);
+        if (pos) {
+          mapInstance.setCenter(pos);
+          mapInstance.setZoom(9);
+        }
+      } else if (mapMarkers.origin) {
+        const pos =
+          mapMarkers.origin.position ||
+          (mapMarkers.origin.getPosition ? mapMarkers.origin.getPosition() : null);
+        if (pos) {
+          mapInstance.setCenter(pos);
+          mapInstance.setZoom(9);
+        }
+      }
+    }
+  } else if (mapMarkers.current) {
+    // Fallback: center on current location
+    const pos =
+      mapMarkers.current.position ||
+      (mapMarkers.current.getPosition ? mapMarkers.current.getPosition() : null);
+    if (pos) {
+      mapInstance.setCenter(pos);
+      mapInstance.setZoom(9);
+    }
+  } else {
+    // Default view
+    mapInstance.setCenter({ lat: 20, lng: 0 });
+    mapInstance.setZoom(2);
+  }
+
+  if (mapPlaceholder) {
+    mapPlaceholder.style.display = 'none';
   }
 }
 
@@ -315,54 +479,203 @@ function geocodeAddress(address) {
   });
 }
 
-// Helper: extract coordinates with multiple possible backend field names
-function getCoordsFromShipment(shipment) {
-  const lat =
-    shipment.latitude ??
-    shipment.lat ??
-    shipment.locationLat ??
-    (shipment.coordinates ? shipment.coordinates.lat : undefined);
-  const lon =
-    shipment.longitude ??
-    shipment.lng ??
-    shipment.lon ??
-    shipment.locationLng ??
-    (shipment.coordinates ? shipment.coordinates.lng : undefined);
-  if (typeof lat === 'number' && typeof lon === 'number') return [lat, lon];
-  const latNum = Number(lat);
-  const lonNum = Number(lon);
-  if (!Number.isNaN(latNum) && !Number.isNaN(lonNum)) return [latNum, lonNum];
+// Helper: convert position to LatLng object
+function toLatLng(position) {
+  if (position instanceof google.maps.LatLng) {
+    return position;
+  }
+  if (position.lat && position.lng) {
+    return new google.maps.LatLng(position.lat, position.lng);
+  }
   return null;
 }
 
-function getLocationLabel(shipment) {
-  return shipment.mapAddress || shipment.locationDescription || shipment.currentLocation || '';
-}
+// Add marker to map
+function addMarker(type, position, title, color, icon) {
+  if (!mapInstance) return;
 
-function setMapPosition(coords, popupText) {
-  if (!mapInstance || !mapMarker) return;
-  const position = { lat: coords[0], lng: coords[1] };
-  if (mapId && AdvancedMarkerElement && mapMarker instanceof AdvancedMarkerElement) {
-    mapMarker.position = position;
-    mapMarker.title = popupText || '';
-  } else if (mapMarker.setPosition) {
-    mapMarker.setPosition(position);
-    if (mapMarker.setTitle) {
-      mapMarker.setTitle(popupText || '');
-    }
+  const markerOptions = {
+    position,
+    map: mapInstance,
+    title: title || type,
+  };
+
+  // Create marker
+  if (mapId && AdvancedMarkerElement) {
+    markerOptions.content = createMarkerContent(icon, color);
+    mapMarkers[type] = new AdvancedMarkerElement(markerOptions);
+  } else {
+    // Use standard marker with custom icon
+    markerOptions.icon = {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: color,
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 2,
+    };
+    mapMarkers[type] = new google.maps.Marker(markerOptions);
   }
-  mapInstance.setCenter(position);
-  mapInstance.setZoom(9);
+
+  // Add info window
   if (mapInfoWindow) {
-    mapInfoWindow.setContent(popupText || 'Current location');
-    mapInfoWindow.open({
-      anchor: mapMarker,
-      map: mapInstance,
-      shouldFocus: false,
+    mapMarkers[type].addListener('click', () => {
+      mapInfoWindow.setContent(
+        `<div style="padding: 0.5rem;"><strong>${title}</strong><br/>${
+          type.charAt(0).toUpperCase() + type.slice(1)
+        } Location</div>`
+      );
+      mapInfoWindow.open({
+        anchor: mapMarkers[type],
+        map: mapInstance,
+      });
     });
   }
-  if (mapPlaceholder) {
-    mapPlaceholder.style.display = 'none';
+}
+
+// Create marker content for AdvancedMarkerElement
+function createMarkerContent(icon, color) {
+  const div = document.createElement('div');
+  div.style.cssText = `
+    background-color: ${color};
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  `;
+  div.textContent = icon || '📍';
+  return div;
+}
+
+// Add history marker
+function addHistoryMarker(position, title, timestamp, status) {
+  if (!mapInstance) return;
+
+  const markerOptions = {
+    position,
+    map: mapInstance,
+    title: title || 'History Point',
+  };
+
+  if (mapId && AdvancedMarkerElement) {
+    markerOptions.content = createMarkerContent('📍', '#9ca3af');
+    const marker = new AdvancedMarkerElement(markerOptions);
+    mapMarkers.history.push(marker);
+  } else {
+    markerOptions.icon = {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 5,
+      fillColor: '#9ca3af',
+      fillOpacity: 0.7,
+      strokeColor: '#fff',
+      strokeWeight: 1,
+    };
+    const marker = new google.maps.Marker(markerOptions);
+    mapMarkers.history.push(marker);
+  }
+
+  // Add info window for history marker
+  if (mapInfoWindow) {
+    const marker = mapMarkers.history[mapMarkers.history.length - 1];
+    marker.addListener('click', () => {
+      const content = `
+        <div style="padding: 0.5rem;">
+          <strong>${title}</strong><br/>
+          ${timestamp ? `Time: ${new Date(timestamp).toLocaleString()}<br/>` : ''}
+          ${status ? `Status: ${status}` : ''}
+        </div>
+      `;
+      mapInfoWindow.setContent(content);
+      mapInfoWindow.open({
+        anchor: marker,
+        map: mapInstance,
+      });
+    });
+  }
+}
+
+// Draw route polyline from origin to destination
+function drawRoute(originPos, destPos) {
+  if (!mapInstance || !originPos || !destPos) return;
+
+  // Remove existing route
+  if (routePolyline) {
+    routePolyline.setMap(null);
+  }
+
+  // Convert positions to LatLng if needed
+  const origin = toLatLng(originPos) || originPos;
+  const dest = toLatLng(destPos) || destPos;
+
+  routePolyline = new google.maps.Polyline({
+    path: [origin, dest],
+    geodesic: true,
+    strokeColor: '#3b82f6',
+    strokeOpacity: 0.6,
+    strokeWeight: 3,
+    map: mapInstance,
+  });
+}
+
+// Draw location history trail
+function drawLocationHistoryTrail(locationHistory) {
+  if (!mapInstance || !locationHistory || locationHistory.length === 0) return;
+
+  // Remove existing history polyline
+  if (historyPolyline) {
+    historyPolyline.setMap(null);
+  }
+
+  // Filter entries with coordinates
+  const path = locationHistory
+    .filter(
+      (entry) => entry.coordinates && entry.coordinates.latitude && entry.coordinates.longitude
+    )
+    .map((entry) => ({
+      lat: entry.coordinates.latitude,
+      lng: entry.coordinates.longitude,
+    }));
+
+  if (path.length < 2) return;
+
+  historyPolyline = new google.maps.Polyline({
+    path: path,
+    geodesic: true,
+    strokeColor: '#10b981',
+    strokeOpacity: 0.5,
+    strokeWeight: 2,
+    map: mapInstance,
+  });
+}
+
+// Clear all map markers
+function clearMapMarkers() {
+  // Clear main markers
+  Object.keys(mapMarkers).forEach((key) => {
+    if (key === 'history') {
+      mapMarkers[key].forEach((marker) => {
+        marker.setMap(null);
+      });
+      mapMarkers[key] = [];
+    } else if (mapMarkers[key]) {
+      mapMarkers[key].setMap(null);
+      mapMarkers[key] = null;
+    }
+  });
+
+  // Clear polylines
+  if (routePolyline) {
+    routePolyline.setMap(null);
+    routePolyline = null;
+  }
+  if (historyPolyline) {
+    historyPolyline.setMap(null);
+    historyPolyline = null;
   }
 }
 
@@ -384,7 +697,7 @@ async function handleTracking() {
     if (window.apiClient) {
       const response = await window.apiClient.getShipmentByTrackingId(trackingId);
       if (response.success) {
-        displayTrackingResults(response.data);
+        await displayTrackingResults(response.data);
         hideError();
         return;
       } else {
@@ -396,7 +709,7 @@ async function handleTracking() {
     const shipment = trackingData[trackingId];
 
     if (shipment) {
-      displayTrackingResults(shipment);
+      await displayTrackingResults(shipment);
       hideError();
     } else {
       showError('Tracking ID not found. Please check your tracking ID and try again.');
@@ -409,7 +722,7 @@ async function handleTracking() {
     const shipment = trackingData[trackingId];
 
     if (shipment) {
-      displayTrackingResults(shipment);
+      await displayTrackingResults(shipment);
       hideError();
     } else {
       showError(`Unable to track shipment: ${error.message}`);
@@ -423,7 +736,7 @@ async function handleTracking() {
 }
 
 // Display tracking results
-function displayTrackingResults(shipment) {
+async function displayTrackingResults(shipment) {
   // Update shipment details
   document.getElementById('displayTrackingId').textContent = shipment.trackingId;
   document.getElementById('serviceType').textContent = shipment.serviceType;
@@ -446,7 +759,9 @@ function displayTrackingResults(shipment) {
   document.getElementById('lastUpdate').textContent = `Last updated: ${formatDateTime(
     shipment.lastUpdate
   )}`;
-  updateMapFromShipment(shipment);
+
+  // Update map with full shipment data
+  await updateMapFromShipment(shipment);
   document.getElementById('customsStatus').textContent = formatCustomsStatus(
     shipment.customsStatus
   );
@@ -467,11 +782,13 @@ function buildTimeline(timeline) {
   const timelineContainer = document.getElementById('timeline');
   timelineContainer.innerHTML = '';
 
-  timeline.forEach((item) => {
+  timeline.forEach((item, index) => {
     const timelineItem = document.createElement('div');
     timelineItem.className = `timeline-item ${item.completed ? 'completed' : ''} ${
       item.current ? 'current' : ''
     }`;
+    timelineItem.style.cursor = 'pointer';
+    timelineItem.title = 'Click to view on map';
 
     timelineItem.innerHTML = `
             <div class="timeline-content">
@@ -482,8 +799,70 @@ function buildTimeline(timeline) {
             </div>
         `;
 
+    // Add click handler to center map on this location
+    timelineItem.addEventListener('click', () => {
+      centerMapOnTimelineItem(item);
+    });
+
     timelineContainer.appendChild(timelineItem);
   });
+}
+
+// Center map on timeline item location
+async function centerMapOnTimelineItem(item) {
+  if (!mapInstance) return;
+
+  // Check if item has coordinates
+  if (item.coordinates && item.coordinates.latitude && item.coordinates.longitude) {
+    const position = {
+      lat: item.coordinates.latitude,
+      lng: item.coordinates.longitude,
+    };
+    mapInstance.setCenter(position);
+    mapInstance.setZoom(12);
+
+    // Show info window
+    if (mapInfoWindow) {
+      const content = `
+        <div style="padding: 0.5rem;">
+          <strong>${item.title}</strong><br/>
+          ${item.description}<br/>
+          <strong>Location:</strong> ${item.location}<br/>
+          <strong>Time:</strong> ${item.timestamp}
+        </div>
+      `;
+      mapInfoWindow.setContent(content);
+
+      // Create temporary marker for info window
+      const tempMarker = new google.maps.Marker({
+        position: position,
+        map: mapInstance,
+        animation: google.maps.Animation.DROP,
+      });
+
+      mapInfoWindow.open({
+        anchor: tempMarker,
+        map: mapInstance,
+      });
+
+      // Remove temporary marker after 3 seconds
+      setTimeout(() => {
+        tempMarker.setMap(null);
+      }, 3000);
+    }
+  } else if (item.location && geocoder) {
+    // Fallback: geocode the location
+    try {
+      const results = await geocodeAddress(item.location);
+      if (results && results[0]) {
+        const loc = results[0].geometry.location;
+        mapInstance.setCenter({ lat: loc.lat(), lng: loc.lng() });
+        mapInstance.setZoom(12);
+      }
+    } catch (error) {
+      console.error('Error geocoding timeline location:', error);
+    }
+  }
 }
 
 // Generate timeline from shipment status (fallback)
