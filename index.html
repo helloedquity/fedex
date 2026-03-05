@@ -16,9 +16,150 @@
       rel="stylesheet"
     />
   </head>
+  <!-- ============================================================
+       SERVER ERROR PAGE (ACTIVE)
+       To restore the original site, delete everything below this
+       comment block and uncomment the "ORIGINAL SITE BODY" block.
+  ============================================================ -->
   <body>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0f1117;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        color: #e2e8f0;
+        overflow: hidden;
+      }
+      .noise {
+        position: fixed; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none; z-index: 0;
+      }
+      .glow {
+        position: fixed;
+        width: 600px; height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -55%);
+        pointer-events: none; z-index: 0;
+      }
+      .card {
+        position: relative; z-index: 1;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 60px 48px;
+        max-width: 540px; width: 92%;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      }
+      .status-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(239,68,68,0.12);
+        border: 1px solid rgba(239,68,68,0.3);
+        color: #f87171;
+        font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 6px 14px; border-radius: 999px;
+        margin-bottom: 28px;
+      }
+      .status-badge::before {
+        content: '';
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #f87171;
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.75); }
+      }
+      .error-code {
+        font-size: 96px; font-weight: 800;
+        line-height: 1;
+        background: linear-gradient(135deg, #f87171 0%, #fbbf24 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 16px;
+        letter-spacing: -4px;
+      }
+      h1 {
+        font-size: 22px; font-weight: 600;
+        color: #f1f5f9; margin-bottom: 12px;
+      }
+      .desc {
+        font-size: 14px; line-height: 1.7; color: #94a3b8;
+        margin-bottom: 36px;
+      }
+      .divider {
+        border: none; border-top: 1px solid rgba(255,255,255,0.07);
+        margin-bottom: 28px;
+      }
+      .meta {
+        display: flex; flex-direction: column; gap: 8px;
+        font-size: 12px; color: #64748b; font-family: 'Courier New', monospace;
+        margin-bottom: 36px; text-align: left;
+      }
+      .meta span { display: flex; justify-content: space-between; }
+      .meta .val { color: #94a3b8; }
+      .retry-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff; font-size: 14px; font-weight: 600;
+        padding: 13px 32px; border-radius: 10px;
+        text-decoration: none; border: none; cursor: pointer;
+        transition: opacity 0.2s, transform 0.2s;
+        box-shadow: 0 4px 20px rgba(239,68,68,0.3);
+      }
+      .retry-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    </style>
+
+    <div class="noise"></div>
+    <div class="glow"></div>
+
+    <div class="card">
+      <div class="status-badge">Service Unavailable</div>
+      <div class="error-code">500</div>
+      <h1>Internal Server Error</h1>
+      <p class="desc">
+        Our servers encountered an unexpected condition that prevented
+        them from fulfilling this request. The team has been notified
+        and is working to resolve the issue.
+      </p>
+      <hr class="divider" />
+      <div class="meta">
+        <span><span>Error Code</span><span class="val">HTTP 500 — Internal Server Error</span></span>
+        <span><span>Request ID</span><span class="val" id="reqId">—</span></span>
+        <span><span>Timestamp</span><span class="val" id="ts">—</span></span>
+      </div>
+      <button class="retry-btn" onclick="location.reload()">Try Again</button>
+    </div>
+
+    <script>
+      // Generate a fake request ID and live timestamp
+      document.getElementById('reqId').textContent =
+        'REQ-' + Math.random().toString(36).slice(2, 10).toUpperCase();
+      function tick() {
+        document.getElementById('ts').textContent = new Date().toUTCString();
+      }
+      tick(); setInterval(tick, 1000);
+    </script>
+  </body>
+</html>
+
+
+<!-- ============================================================
+     ORIGINAL SITE BODY (COMMENTED OUT — restore when ready)
+============================================================
+  <body>
+    <link rel="stylesheet" href="Styles.css" />
     <!-- Navigation -->
-    <nav class="navbar" id="navbar">
+    <!-- <nav class="navbar" id="navbar">
       <div class="nav-container">
         <div class="nav-logo">
           <h2>FedEx Ship Center</h2>
@@ -38,10 +179,9 @@
           <span class="bar"></span>
         </div>
       </div>
-    </nav>
+    </nav> -->
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
+    <!-- <section id="home" class="hero">
       <div class="hero-container">
         <div class="hero-content">
           <h1 class="hero-title">Professional US Customs Clearance & Shipping Solutions</h1>
@@ -55,296 +195,107 @@
           </div>
         </div>
         <div class="hero-image">
-          <img
-            src="https://images.pexels.com/photos/4481259/pexels-photo-4481259.jpeg"
-            alt="Shipping containers at port"
-          />
+          <img src="https://images.pexels.com/photos/4481259/pexels-photo-4481259.jpeg" alt="Shipping containers at port" />
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Services Section -->
-    <section id="services" class="services">
+    <!-- <section id="services" class="services">
       <div class="container">
         <div class="section-header">
           <h2>Our Services</h2>
           <p>Comprehensive customs and shipping solutions tailored to your business needs</p>
         </div>
         <div class="services-grid">
-          <div class="service-card">
-            <div class="service-icon">🛃</div>
-            <h3>Customs Clearance</h3>
-            <p>
-              Expert customs clearance for high-value shipments. Specializing in shipments valued at
-              $9,550 USDT and above with full compliance assurance.
-            </p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">📦</div>
-            <h3>Express Delivery</h3>
-            <p>
-              Fast and secure delivery services across the United States with real-time tracking and
-              guaranteed delivery times.
-            </p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">📄</div>
-            <h3>Documentation</h3>
-            <p>
-              Complete documentation services including duty calculations, classification codes, and
-              regulatory compliance paperwork.
-            </p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">🌐</div>
-            <h3>International Shipping</h3>
-            <p>
-              Worldwide shipping solutions with expertise in international trade regulations and
-              cross-border logistics.
-            </p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">🔒</div>
-            <h3>Secure Handling</h3>
-            <p>
-              Advanced security protocols for high-value cargo with full insurance coverage and
-              secure storage facilities.
-            </p>
-          </div>
-          <div class="service-card">
-            <div class="service-icon">⏰</div>
-            <h3>24/7 Support</h3>
-            <p>
-              Round-the-clock customer support and real-time shipment tracking for complete peace of
-              mind.
-            </p>
-          </div>
+          <div class="service-card"><div class="service-icon">🛃</div><h3>Customs Clearance</h3><p>Expert customs clearance for high-value shipments. Specializing in shipments valued at $9,550 USDT and above with full compliance assurance.</p></div>
+          <div class="service-card"><div class="service-icon">📦</div><h3>Express Delivery</h3><p>Fast and secure delivery services across the United States with real-time tracking and guaranteed delivery times.</p></div>
+          <div class="service-card"><div class="service-icon">📄</div><h3>Documentation</h3><p>Complete documentation services including duty calculations, classification codes, and regulatory compliance paperwork.</p></div>
+          <div class="service-card"><div class="service-icon">🌐</div><h3>International Shipping</h3><p>Worldwide shipping solutions with expertise in international trade regulations and cross-border logistics.</p></div>
+          <div class="service-card"><div class="service-icon">🔒</div><h3>Secure Handling</h3><p>Advanced security protocols for high-value cargo with full insurance coverage and secure storage facilities.</p></div>
+          <div class="service-card"><div class="service-icon">⏰</div><h3>24/7 Support</h3><p>Round-the-clock customer support and real-time shipment tracking for complete peace of mind.</p></div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing">
+    <!-- <section id="pricing" class="pricing">
       <div class="container">
-        <div class="section-header">
-          <h2>Transparent Pricing</h2>
-          <p>Clear, competitive rates for all your customs clearance needs</p>
-        </div>
+        <div class="section-header"><h2>Transparent Pricing</h2><p>Clear, competitive rates for all your customs clearance needs</p></div>
         <div class="pricing-grid">
           <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Standard Clearance</h3>
-              <div class="price">$9,500 <span>USDT</span></div>
-            </div>
-            <ul class="pricing-features">
-              <li>✓ Standard customs clearance</li>
-              <li>✓ Basic documentation</li>
-              <li>✓ 5-7 business days</li>
-              <li>✓ Email support</li>
-              <li>✓ Basic tracking</li>
-            </ul>
+            <div class="pricing-header"><h3>Standard Clearance</h3><div class="price">$9,500 <span>USDT</span></div></div>
+            <ul class="pricing-features"><li>✓ Standard customs clearance</li><li>✓ Basic documentation</li><li>✓ 5-7 business days</li><li>✓ Email support</li><li>✓ Basic tracking</li></ul>
             <a href="#contact" class="btn btn-outline">Get Started</a>
           </div>
           <div class="pricing-card featured">
             <div class="pricing-badge">Popular</div>
-            <div class="pricing-header">
-              <h3>Express Clearance</h3>
-              <div class="price">$12,500 <span>USDT</span></div>
-            </div>
-            <ul class="pricing-features">
-              <li>✓ Priority customs clearance</li>
-              <li>✓ Complete documentation</li>
-              <li>✓ 2-3 business days</li>
-              <li>✓ 24/7 phone support</li>
-              <li>✓ Real-time tracking</li>
-              <li>✓ Insurance included</li>
-            </ul>
+            <div class="pricing-header"><h3>Express Clearance</h3><div class="price">$12,500 <span>USDT</span></div></div>
+            <ul class="pricing-features"><li>✓ Priority customs clearance</li><li>✓ Complete documentation</li><li>✓ 2-3 business days</li><li>✓ 24/7 phone support</li><li>✓ Real-time tracking</li><li>✓ Insurance included</li></ul>
             <a href="#contact" class="btn btn-primary">Get Started</a>
           </div>
           <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Premium Service</h3>
-              <div class="price">$15,000 <span>USDT</span></div>
-            </div>
-            <ul class="pricing-features">
-              <li>✓ Same-day clearance</li>
-              <li>✓ Dedicated agent</li>
-              <li>✓ 24-48 hours</li>
-              <li>✓ Priority support</li>
-              <li>✓ Advanced tracking</li>
-              <li>✓ Full insurance</li>
-              <li>✓ White-glove service</li>
-            </ul>
+            <div class="pricing-header"><h3>Premium Service</h3><div class="price">$15,000 <span>USDT</span></div></div>
+            <ul class="pricing-features"><li>✓ Same-day clearance</li><li>✓ Dedicated agent</li><li>✓ 24-48 hours</li><li>✓ Priority support</li><li>✓ Advanced tracking</li><li>✓ Full insurance</li><li>✓ White-glove service</li></ul>
             <a href="#contact" class="btn btn-outline">Get Started</a>
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Process Section -->
-    <section id="process" class="process">
+    <!-- <section id="process" class="process">
       <div class="container">
-        <div class="section-header">
-          <h2>Our Clearance Process</h2>
-          <p>Simple, streamlined steps to get your shipment cleared quickly</p>
-        </div>
+        <div class="section-header"><h2>Our Clearance Process</h2><p>Simple, streamlined steps to get your shipment cleared quickly</p></div>
         <div class="process-steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <h3>Submit Documents</h3>
-            <p>
-              Upload your shipping documents and provide shipment details through our secure portal.
-            </p>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <h3>Review & Validation</h3>
-            <p>
-              Our experts review your documents and validate compliance with US customs regulations.
-            </p>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <h3>Customs Processing</h3>
-            <p>
-              We handle all customs interactions and processing on your behalf with full
-              transparency.
-            </p>
-          </div>
-          <div class="step">
-            <div class="step-number">4</div>
-            <h3>Delivery Coordination</h3>
-            <p>Once cleared, we coordinate final delivery to your specified destination.</p>
-          </div>
+          <div class="step"><div class="step-number">1</div><h3>Submit Documents</h3><p>Upload your shipping documents and provide shipment details through our secure portal.</p></div>
+          <div class="step"><div class="step-number">2</div><h3>Review & Validation</h3><p>Our experts review your documents and validate compliance with US customs regulations.</p></div>
+          <div class="step"><div class="step-number">3</div><h3>Customs Processing</h3><p>We handle all customs interactions and processing on your behalf with full transparency.</p></div>
+          <div class="step"><div class="step-number">4</div><h3>Delivery Coordination</h3><p>Once cleared, we coordinate final delivery to your specified destination.</p></div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- About Section -->
-    <section id="about" class="about">
+    <!-- <section id="about" class="about">
       <div class="container">
         <div class="about-content">
           <div class="about-text">
             <h2>About FedEx Ship Center</h2>
-            <p>
-              With over 15 years of experience in US customs clearance, we specialize in handling
-              high-value shipments starting from $14,350 USDT. Our team of certified customs brokers
-              ensures your goods move through the clearance process efficiently and compliantly.
-            </p>
+            <p>With over 15 years of experience in US customs clearance, we specialize in handling high-value shipments starting from $14,350 USDT. Our team of certified customs brokers ensures your goods move through the clearance process efficiently and compliantly.</p>
             <div class="stats">
-              <div class="stat">
-                <h3>10,000+</h3>
-                <p>Shipments Cleared</p>
-              </div>
-              <div class="stat">
-                <h3>99.8%</h3>
-                <p>Success Rate</p>
-              </div>
-              <div class="stat">
-                <h3>24/7</h3>
-                <p>Support Available</p>
-              </div>
+              <div class="stat"><h3>10,000+</h3><p>Shipments Cleared</p></div>
+              <div class="stat"><h3>99.8%</h3><p>Success Rate</p></div>
+              <div class="stat"><h3>24/7</h3><p>Support Available</p></div>
             </div>
           </div>
-          <div class="about-image">
-            <img
-              src="https://images.pexels.com/photos/4481942/pexels-photo-4481942.jpeg"
-              alt="Customs warehouse"
-            />
-          </div>
+          <div class="about-image"><img src="https://images.pexels.com/photos/4481942/pexels-photo-4481942.jpeg" alt="Customs warehouse" /></div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Testimonials Section -->
-    <section class="testimonials">
+    <!-- <section class="testimonials">
       <div class="container">
-        <div class="section-header">
-          <h2>What Our Clients Say</h2>
-          <p>Trusted by businesses across the United States</p>
-        </div>
+        <div class="section-header"><h2>What Our Clients Say</h2><p>Trusted by businesses across the United States</p></div>
         <div class="testimonials-grid">
-          <div class="testimonial">
-            <p>
-              "FedEx Ship Center handled our $50,000 electronics shipment flawlessly. The process
-              was transparent and completed faster than expected."
-            </p>
-            <div class="testimonial-author">
-              <strong>Sarah Johnson</strong>
-              <span>Import Manager, TechCorp</span>
-            </div>
-          </div>
-          <div class="testimonial">
-            <p>
-              "Professional service with excellent communication. They made customs clearance
-              stress-free for our manufacturing business."
-            </p>
-            <div class="testimonial-author">
-              <strong>Michael Chen</strong>
-              <span>Operations Director, Global Manufacturing</span>
-            </div>
-          </div>
-          <div class="testimonial">
-            <p>
-              "The team's expertise in handling luxury goods clearance is unmatched. Highly
-              recommended for high-value shipments."
-            </p>
-            <div class="testimonial-author">
-              <strong>Emma Rodriguez</strong>
-              <span>Procurement Manager, Luxury Imports</span>
-            </div>
-          </div>
+          <div class="testimonial"><p>"FedEx Ship Center handled our $50,000 electronics shipment flawlessly. The process was transparent and completed faster than expected."</p><div class="testimonial-author"><strong>Sarah Johnson</strong><span>Import Manager, TechCorp</span></div></div>
+          <div class="testimonial"><p>"Professional service with excellent communication. They made customs clearance stress-free for our manufacturing business."</p><div class="testimonial-author"><strong>Michael Chen</strong><span>Operations Director, Global Manufacturing</span></div></div>
+          <div class="testimonial"><p>"The team's expertise in handling luxury goods clearance is unmatched. Highly recommended for high-value shipments."</p><div class="testimonial-author"><strong>Emma Rodriguez</strong><span>Procurement Manager, Luxury Imports</span></div></div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
+    <!-- <section id="contact" class="contact">
       <div class="container">
-        <div class="section-header">
-          <h2>Get in Touch</h2>
-          <p>Ready to clear your shipment? Contact us for a free quote</p>
-        </div>
+        <div class="section-header"><h2>Get in Touch</h2><p>Ready to clear your shipment? Contact us for a free quote</p></div>
         <div class="contact-content">
           <div class="contact-info">
-            <div class="contact-item">
-              <h3>💬 SMS</h3>
-              <p>+1 (213) 569-9033</p>
-            </div>
-            <div class="contact-item">
-              <h3>📧 Email</h3>
-              <p>official.FedEx.company8@gmail.com</p>
-            </div>
-            <div class="contact-item">
-              <h3>📍 Address</h3>
-              <p>
-                California,<br />
-                USA CA 90011
-              </p>
-            </div>
-            <div class="contact-item">
-              <h3>⏰ Business Hours</h3>
-              <p>Mon-Fri: 8:00 AM - 8:00 PM<br />24/7 Emergency Support</p>
-            </div>
+            <div class="contact-item"><h3>💬 SMS</h3><p>+1 (213) 569-9033</p></div>
+            <div class="contact-item"><h3>📧 Email</h3><p>official.FedEx.company8@gmail.com</p></div>
+            <div class="contact-item"><h3>📍 Address</h3><p>California,<br />USA CA 90011</p></div>
+            <div class="contact-item"><h3>⏰ Business Hours</h3><p>Mon-Fri: 8:00 AM - 8:00 PM<br />24/7 Emergency Support</p></div>
           </div>
           <form class="contact-form" id="contactForm">
-            <div class="form-group">
-              <input type="text" id="name" name="name" placeholder="Your Name" required />
-            </div>
-            <div class="form-group">
-              <input type="email" id="email" name="email" placeholder="Your Email" required />
-            </div>
-            <div class="form-group">
-              <input type="tel" id="phone" name="phone" placeholder="Phone Number" />
-            </div>
-            <div class="form-group">
-              <input
-                type="text"
-                id="shipment-value"
-                name="shipment-value"
-                placeholder="Shipment Value (Kg)"
-              />
-            </div>
+            <div class="form-group"><input type="text" id="name" name="name" placeholder="Your Name" required /></div>
+            <div class="form-group"><input type="email" id="email" name="email" placeholder="Your Email" required /></div>
+            <div class="form-group"><input type="tel" id="phone" name="phone" placeholder="Phone Number" /></div>
+            <div class="form-group"><input type="text" id="shipment-value" name="shipment-value" placeholder="Shipment Value (Kg)" /></div>
             <div class="form-group">
               <select id="service" name="service" required>
                 <option value="">Select Service</option>
@@ -353,66 +304,27 @@
                 <option value="premium">Premium Service</option>
               </select>
             </div>
-            <div class="form-group">
-              <textarea
-                id="message"
-                name="message"
-                placeholder="Message or additional details"
-                rows="4"
-              ></textarea>
-            </div>
+            <div class="form-group"><textarea id="message" name="message" placeholder="Message or additional details" rows="4"></textarea></div>
             <button type="submit" class="btn btn-primary">Send Message</button>
           </form>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- <footer class="footer">
       <div class="container">
         <div class="footer-content">
-          <div class="footer-section">
-            <h3>FedEx Ship Center</h3>
-            <p>Professional US customs clearance and shipping services for high-value cargo.</p>
-          </div>
-          <div class="footer-section">
-            <h4>Services</h4>
-            <ul>
-              <li><a href="#services">Customs Clearance</a></li>
-              <li><a href="#services">Express Delivery</a></li>
-              <li><a href="#services">Documentation</a></li>
-              <li><a href="#services">International Shipping</a></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#process">Our Process</a></li>
-              <li><a href="#pricing">Pricing</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
-          <!-- <h3> SMS</h3> -->
-          <div class="footer-section">
-            <h4>Contact Info</h4>
-            <h3>💬 SMS</h3>
-            <p>+1 (213) 569-9033</p>
-            <p>📧 official.FedEx.company8@gmail.com</p>
-            <p>📍 California, USA CA 90011</p>
-          </div>
+          <div class="footer-section"><h3>FedEx Ship Center</h3><p>Professional US customs clearance and shipping services for high-value cargo.</p></div>
+          <div class="footer-section"><h4>Services</h4><ul><li><a href="#services">Customs Clearance</a></li><li><a href="#services">Express Delivery</a></li><li><a href="#services">Documentation</a></li><li><a href="#services">International Shipping</a></li></ul></div>
+          <div class="footer-section"><h4>Company</h4><ul><li><a href="#about">About Us</a></li><li><a href="#process">Our Process</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#contact">Contact</a></li></ul></div>
+          <div class="footer-section"><h4>Contact Info</h4><h3>💬 SMS</h3><p>+1 (213) 569-9033</p><p>📧 official.FedEx.company8@gmail.com</p><p>📍 California, USA CA 90011</p></div>
         </div>
         <div class="footer-bottom">
-          <li>
-            <a style="color: #1e293b; list-style: none; text-decoration: none" href="admin.html"
-              >Admin Panel</a
-            >
-          </li>
+          <li><a style="color: #1e293b; list-style: none; text-decoration: none" href="admin.html">Admin Panel</a></li>
           <p>&copy; 2020 FedEx Ship Center . All rights reserved.</p>
         </div>
       </div>
-    </footer>
-
-    <script src="Script.js"></script>
+    </footer> -->
+    <!-- <script src="Script.js"></script> -->
   </body>
 </html>
