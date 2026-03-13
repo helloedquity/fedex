@@ -23,9 +23,9 @@
       rel="stylesheet"
     />
   </head>
-  <!-- <body> -->
+  <body> 
     <!-- Navigation -->
-    <!-- <nav class="navbar" id="navbar">
+     <nav class="navbar" id="navbar">
       <div class="nav-container">
         <div class="nav-logo">
           <h2>
@@ -47,13 +47,13 @@
           <span class="bar"></span>
         </div>
       </div>
-    </nav> -->
+    </nav> 
 
     <!-- Admin Panel -->
-    <!-- <section class="admin-section">
-      <div class="container"> -->
+     <section class="admin-section">
+      <div class="container"> 
         <!-- Admin Login Form -->
-        <!-- <div id="loginForm" class="login-container">
+         <div id="loginForm" class="login-container">
           <div class="login-card">
             <h2>Admin Login</h2>
             <form id="adminLoginForm">
@@ -90,16 +90,16 @@
               </p>
             </div>
           </div>
-        </div> -->
+        </div>
 
         <!-- Admin Dashboard -->
-        <!-- <div id="adminDashboard" class="admin-dashboard" style="display: none">
+         <div id="adminDashboard" class="admin-dashboard" style="display: none">
           <div class="dashboard-header">
             <h1>Admin Dashboard</h1>
             <button id="logoutBtn" class="btn btn-outline">Logout</button>
           </div>
 
-          <!-- Quick Stats 
+           <!-- Quick Stats  -->
           <div class="stats-grid">
             <div class="stat-card">
               <h3>Active Shipments</h3>
@@ -363,7 +363,7 @@
       </div>
     </section>
 
-    Update Modal
+    <!-- Update Modal -->
     <div id="updateModal" class="modal" style="display: none">
       <div class="modal-content">
         <div class="modal-header">
@@ -435,7 +435,7 @@
       </div>
     </div>
 
-    Message Reply Modal
+    <!-- Message Reply Modal -->
     <div id="replyModal" class="modal" style="display: none">
       <div class="modal-content">
         <div class="modal-header">
@@ -464,7 +464,7 @@
       </div>
     </div>
 
-    Map Picker Modal
+    <!-- Map Picker Modal -->
     <div id="mapPickerModal" class="modal" style="display: none">
       <div
         class="modal-content"
@@ -563,204 +563,6 @@
     <script src="../Script.js"></script>
     <script src="admin.js"></script>
   </body>
-   -->
-  <body>
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
   
-      body {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #0f1117;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-        color: #e2e8f0;
-        overflow: hidden;
-      }
   
-      .noise {
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-        pointer-events: none;
-        z-index: 0;
-      }
-  
-      .glow {
-        position: fixed;
-        width: 600px;
-        height: 600px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, transparent 70%);
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -55%);
-        pointer-events: none;
-        z-index: 0;
-      }
-  
-      .card {
-        position: relative;
-        z-index: 1;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 60px 48px;
-        max-width: 540px;
-        width: 92%;
-        text-align: center;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
-      }
-  
-      .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #f87171;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        padding: 6px 14px;
-        border-radius: 999px;
-        margin-bottom: 28px;
-      }
-  
-      .status-badge::before {
-        content: '';
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #f87171;
-        animation: pulse 1.6s ease-in-out infinite;
-      }
-  
-      @keyframes pulse {
-  
-        0%,
-        100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-  
-        50% {
-          opacity: 0.4;
-          transform: scale(0.75);
-        }
-      }
-  
-      .error-code {
-        font-size: 96px;
-        font-weight: 800;
-        line-height: 1;
-        background: linear-gradient(135deg, #f87171 0%, #fbbf24 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 16px;
-        letter-spacing: -4px;
-      }
-  
-      h1 {
-        font-size: 22px;
-        font-weight: 600;
-        color: #f1f5f9;
-        margin-bottom: 12px;
-      }
-  
-      .desc {
-        font-size: 14px;
-        line-height: 1.7;
-        color: #94a3b8;
-        margin-bottom: 36px;
-      }
-  
-      .divider {
-        border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.07);
-        margin-bottom: 28px;
-      }
-  
-      .meta {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        font-size: 12px;
-        color: #64748b;
-        font-family: 'Courier New', monospace;
-        margin-bottom: 36px;
-        text-align: left;
-      }
-  
-      .meta span {
-        display: flex;
-        justify-content: space-between;
-      }
-  
-      .meta .val {
-        color: #94a3b8;
-      }
-  
-      .retry-btn {
-        display: inline-block;
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: #fff;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 13px 32px;
-        border-radius: 10px;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: opacity 0.2s, transform 0.2s;
-        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
-      }
-  
-      .retry-btn:hover {
-        opacity: 0.88;
-        transform: translateY(-1px);
-      }
-    </style>
-  
-    <div class="noise"></div>
-    <div class="glow"></div>
-  
-    <div class="card">
-      <div class="status-badge">Service Unavailable</div>
-      <div class="error-code">500</div>
-      <h1>Internal Server Error</h1>
-      <p class="desc">
-        Our servers encountered an unexpected condition that prevented
-        them from fulfilling this request. The team has been notified
-        and is working to resolve the issue.
-      </p>
-      <hr class="divider" />
-      <div class="meta">
-        <span><span>Error Code</span><span class="val">HTTP 500 — Internal Server Error</span></span>
-        <span><span>Request ID</span><span class="val" id="reqId">—</span></span>
-        <span><span>Timestamp</span><span class="val" id="ts">—</span></span>
-      </div>
-      <button class="retry-btn" onclick="location.reload()">Try Again</button>
-    </div>
-  
-    <script>
-        // Generate a fake request ID and live timestamp
-        document.getElementById('reqId').textContent =
-          'REQ-' + Math.random().toString(36).slice(2, 10).toUpperCase();
-        function tick() {
-          document.getElementById('ts').textContent = new Date().toUTCString();
-        }
-        tick(); setInterval(tick, 1000);
-      </script>
-  </body>
 </html>
